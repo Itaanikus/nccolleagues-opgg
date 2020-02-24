@@ -12,6 +12,7 @@ namespace ColLeaguesOpGg
 {
     public class Program
     {
+        private static readonly int inputFailLimit = 5;
         private static readonly long netcompanyOrganisationId = 661;
         private static readonly int lolGameTypeId = 2;
         private static HttpClient _client;
@@ -19,7 +20,7 @@ namespace ColLeaguesOpGg
         public static void Main(string[] args)
         {
             _client = new HttpClient();
-            var matchId = ValidateArgument(args);
+            var matchId = ValidateInput();
 
             var response = RequestMatchDetails(matchId);
 
@@ -29,25 +30,26 @@ namespace ColLeaguesOpGg
             OpenUrl(opGgUrl);
         }
 
-        private static long ValidateArgument(string[] args)
+        private static long ValidateInput()
         {
-            string input;
-
-            if (args == null || args.Length != 1)
-            {
-                Console.WriteLine("You did not provide a matchid.. Please enter the match id");
-                input = Console.ReadLine();
-            }
-            else
-            {
-                input = args[0];
-            }
+            Console.WriteLine("Please enter the NC match id.. (You can find this from the last digits of the match url)");
+            var input = Console.ReadLine();
 
             var parseSucceeded = long.TryParse(input, out var matchId);
 
+            var failCounter = 1;
+            while (!parseSucceeded && failCounter < inputFailLimit)
+            {
+                Console.WriteLine($"You entered something that couldn't be parsed to an integer. Please enter the match id again as a number.. (Failed {failCounter}/{inputFailLimit})");
+                input = Console.ReadLine();
+
+                parseSucceeded = long.TryParse(input, out matchId);
+                failCounter++;
+            }
+
             if (!parseSucceeded)
             {
-                throw new ArgumentException("You failed to provide an integer, noob.. You can try again by rerunning the program.");
+                throw new ArgumentException("Man.. You failed to provide an integer (long) in five tries.. You can try again by rerunning the program.");
             }
 
             return matchId;
