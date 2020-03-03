@@ -9,15 +9,32 @@ function myOpGgFunction() {
         return;
     }
 
-    opGgTeam(inputValue);
+    var tmp = getTeamInfo(inputValue);
+    console.log(getTeamInfo)
 };
 
-function opGgTeam(teamId) {
+function getTeamInfo(teamId) {
     var teamUrl = "https://app.esportligaen.dk/api/team/" + teamId + "?includeViewInfo=true";
     const teamResponse = fetchUrl(teamUrl);
+
+    // Members from json object..
+    var teamMembers = [];
+    teamResponse.members.forEach(member => {
+        teamMembers.push( { id: member.id, nickname: member.nickname } )
+    });
+    return teamMembers;
 };
 
 function fetchUrl(url) {
-    const response = fetch(url);
-    return await response.json();
+    fetch(url).then(function (response) {
+        if (!response.ok) {
+            throw Error(response.statusText);
+        }
+
+        response.json().then(function (data) {
+            return data;
+        })
+    }).catch(function (error) {
+        console.log(error);
+    })
 }
