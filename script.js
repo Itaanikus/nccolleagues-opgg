@@ -1,6 +1,6 @@
 function myOpGgFunction() {
     var inputElement = document.getElementById("teamIdInput");
-    var inputValue = inputElement.value
+    var inputValue = +inputElement.value
     var isNumber = Number.isInteger(inputValue);
 
     if (!isNumber || inputValue <= 0) {
@@ -9,31 +9,32 @@ function myOpGgFunction() {
         return;
     }
 
-    var tmp = getTeamInfo(inputValue);
-    console.log(getTeamInfo)
+    getTeamInfo(inputValue);
 };
 
 function getTeamInfo(teamId) {
     var teamUrl = "https://app.esportligaen.dk/api/team/" + teamId + "?includeViewInfo=true";
-    const teamResponse = fetchUrl(teamUrl);
 
-    // Members from json object..
-    var teamMembers = [];
-    teamResponse.members.forEach(member => {
-        teamMembers.push( { id: member.id, nickname: member.nickname } )
+    return fetchUrl(teamUrl).then(response => {
+        // Members from json object..
+        var teamMembers = [];        
+        response.members.forEach(member => {
+            teamMembers.push( { id: member.id, nickname: member.nickname } )
+        });
+        
     });
-    return teamMembers;
 };
 
 function fetchUrl(url) {
-    fetch(url).then(function (response) {
+    console.log("Fetching url: " + url);
+
+    return fetch(url).then(response => {
         if (!response.ok) {
             throw Error(response.statusText);
         }
-
-        response.json().then(function (data) {
-            return data;
-        })
+        return response.json();
+    }).then(data => {
+        return data;
     }).catch(function (error) {
         console.log(error);
     })
